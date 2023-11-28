@@ -23,17 +23,29 @@ function Home() {
 
   useEffect(() => {
     const userId = jwtDecode(token).user_id;
-    fetch(`${import.meta.env.VITE_BACKEND_URI}/api/users/${userId}`)
+    fetch(`${import.meta.env.VITE_BACKEND_URI}/api/users/${userId}`, {
+      headers: {
+        token: `${token}`,
+      },
+    })
       .then((res) => res.json())
       .then((data) => {
         if (data.id) {
           setUser(data);
         } else {
           showMessage({
-            text: "Error getting user data",
+            text: "Session expired",
             type: "error",
           });
+          logout();
         }
+      })
+      .catch((err) => {
+        showMessage({
+          text: "Session expired",
+          type: "error",
+        });
+        logout();
       });
   }, []);
 

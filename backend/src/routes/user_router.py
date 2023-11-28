@@ -20,7 +20,16 @@ async def get_users():
   )
 
 @user_router.get('/{user_id}', response_model=UserResponse, responses={400: {'model': ErrorResponse}})
-async def get_user(user_id: int):
+async def get_user(user_id: int, token: str = Header(None)):
+
+  if token == None:
+    raise HTTPException(status_code=401, detail='Unauthorized: No token provided')
+
+  user_id_token = decode_token(token)['user_id']
+
+  if user_id_token != user_id:
+    raise HTTPException(status_code=401, detail='Unauthorized: Invalid token')
+
   user = User.select().where(User.id == user_id).first()
 
   if user is None:
