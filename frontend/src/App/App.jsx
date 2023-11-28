@@ -7,26 +7,24 @@ import { Message } from "../Message/Message";
 import { AppRoutes } from "./AppRoutes";
 import { BrowserRouter } from "react-router-dom";
 import { useMessage } from "../hooks/useMessage";
+import { EditProfile } from "../EditProfile/EditProfile";
+import { useModal } from "../hooks/useModal";
 
 function App() {
-  const [user, setUser] = useState(null);
-
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-
   const { message } = useMessage();
 
+  const { modal } = useModal();
+
   return (
-    <Layout>
-      {message && <Message />}
-      <BrowserRouter>
-        <AppRoutes
-          user={user}
-          setUser={setUser}
-          isAuthenticated={isAuthenticated}
-          setIsAuthenticated={setIsAuthenticated}
-        />
-      </BrowserRouter>
-    </Layout>
+    <>
+      {modal && <EditProfile />}
+      <Layout>
+        {message && <Message />}
+        <BrowserRouter>
+          <AppRoutes />
+        </BrowserRouter>
+      </Layout>
+    </>
   );
 }
 

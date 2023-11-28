@@ -33,11 +33,10 @@ function Login() {
         if (data.token) {
           const user = jwtDecode(data.token);
 
-          login(user);
-
-          console.log(user);
+          login(user, data.token);
 
           localStorage.setItem("user", JSON.stringify(user));
+          localStorage.setItem("token", data.token);
 
           showMessage({
             text: "Login successful",

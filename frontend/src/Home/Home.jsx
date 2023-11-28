@@ -1,10 +1,17 @@
+import { useEffect, useState } from "react";
 import { useAuth } from "../hooks/useAuth";
 import { useMessage } from "../hooks/useMessage";
+import { useModal } from "../hooks/useModal";
+import { jwtDecode } from "jwt-decode";
 
 function Home() {
-  const { user, logout } = useAuth();
+  const { token, logout } = useAuth();
 
   const { showMessage } = useMessage();
+
+  const { openModal } = useModal();
+
+  const [user, setUser] = useState({});
 
   const handleLogout = () => {
     logout();
@@ -13,6 +20,22 @@ function Home() {
       type: "success",
     });
   };
+
+  useEffect(() => {
+    const userId = jwtDecode(token).user_id;
+    fetch(`${import.meta.env.VITE_BACKEND_URI}/api/users/${userId}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.id) {
+          setUser(data);
+        } else {
+          showMessage({
+            text: "Error getting user data",
+            type: "error",
+          });
+        }
+      });
+  }, []);
 
   return (
     <>
@@ -27,10 +50,16 @@ function Home() {
 
         <div className="flex flex-row justify-center mt-5">
           <button
-            className="bg-red-800 w-52 rounded-lg py-3 text-lg text-white"
+            className="bg-red-800 w-52 rounded-lg py-3 text-lg text-white hover:bg-red-900"
             onClick={handleLogout}
           >
             Logout
+          </button>
+          <button
+            className="bg-blue-800 w-52 rounded-lg py-3 text-lg text-white ml-5 hover:bg-blue-900"
+            onClick={openModal}
+          >
+            Edit Profile
           </button>
         </div>
       </div>

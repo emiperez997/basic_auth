@@ -19,6 +19,15 @@ async def get_users():
     users=total_users, 
   )
 
+@user_router.get('/{user_id}', response_model=UserResponse, responses={400: {'model': ErrorResponse}})
+async def get_user(user_id: int):
+  user = User.select().where(User.id == user_id).first()
+
+  if user is None:
+    raise HTTPException(status_code=404, detail='User not found')
+
+  return user
+
 @user_router.post('/', response_model=UserResponse, responses={400: {'model': ErrorResponse}})
 async def create_user(user: UserRequest): 
   user.password = hash_password(user.password)
@@ -32,6 +41,7 @@ async def update_user(user_id: int, user: UserPutRequest, token: str = Header(No
     raise HTTPException(status_code=401, detail='Unauthorized: No token provided')
 
   user_id_token = decode_token(token)['user_id']
+
 
   if user_id_token != user_id:
     raise HTTPException(status_code=401, detail='Unauthorized: Invalid token')
@@ -58,6 +68,6 @@ async def login(credentials: HTTPBasicCredentials, response: Response):
   if not check_password(credentials.password, user.password):
     raise HTTPException(status_code=400, detail='Invalid password')
 
-  token = create_token({ 'user_id': user.id, 'username': user.username })
+  token = create_token({ 'user_id': user.id })
 
   return AuthResponse(token=token) 
